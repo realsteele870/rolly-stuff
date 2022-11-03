@@ -1,0 +1,88 @@
+import os, io
+from google.cloud import vision
+import pandas
+import time
+
+
+
+
+
+class OCR_Processor():
+
+
+
+   def __init__(self):
+        
+        # capture api start time
+        api_start = time.time()
+
+
+
+       # Set environmental variable
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r"Vision_Token.json"
+
+
+
+       # Create client instance
+        client = vision.ImageAnnotatorClient()
+
+
+
+       # set picture filename and path
+        file_name = 'cpu.jpg'
+        image_path = f'/insert_file_directory_here/{file_name}'
+
+
+
+       # read in picture file
+        with io.open(image_path, 'rb') as image_file:
+            content = image_file.read()
+
+
+
+       # construct an image instance
+        image = vision.Image(content=content)     
+
+
+
+       # annotate image response
+        response = client.text_detection(image=image)  # returns TextAnnotation
+        text_detection_response = response.text_annotations
+
+
+
+       self.extract_text_from_response(text_detection_response)
+
+
+
+       # calculate api duration
+        api_end = time.time()
+        api_duration = round((api_end - api_start),3)
+        print("\n##################################")
+        print("#  API Duration =", api_duration,"Seconds  #")
+        print("##################################")
+
+
+
+   def extract_text_from_response(self,text_detection_response):
+
+
+
+       # create variable to store description of the first element i.e. all text found in picture
+        text = text_detection_response[0].description
+        print(">>>>>>>>>>>>>>>>>>>>>>>>>  Start of OCR Text Dump <<<<<<<<<<<<<<<<<<<<<<<<<\n")
+
+
+
+       split_text = text.split()
+        for item in split_text:
+            if len(item) == 5 and item[0] == "S":
+                print (item)
+
+
+
+       print("\n>>>>>>>>>>>>>>>>>>>>>>>>>   End of OCR Text Dump  <<<<<<<<<<<<<<<<<<<<<<<<<")
+
+
+
+a = OCR_Processor()
